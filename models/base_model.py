@@ -25,7 +25,7 @@ class BaseModel():
         """
         Returns a string representation of the object
         """
-        return "[{}] ({}) {}".format(type(self), self.id, self.__dict__)
+        return "[{}] ({}) {}".format(type(self).__name__, self.id, self.__dict__)
 
     def save(self):
         """
@@ -40,7 +40,7 @@ class BaseModel():
         keys/values of __dict__ of the instance
         """
         obj_dict = self.__dict__
-        obj_dict['__class__'] = type(self)
+        obj_dict['__class__'] = type(self).__name__
         obj_dict['created_at'] = str(obj_dict['created_at'].isoformat())
         obj_dict['updated_at'] = str(obj_dict['updated_at'].isoformat())
         return obj_dict
