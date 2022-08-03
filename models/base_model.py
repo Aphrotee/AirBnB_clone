@@ -18,18 +18,21 @@ class BaseModel():
         """
         init function
         """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        if len(kwargs) != 0:
-            self.id = kwargs["id"]
-            self.my_number = kwargs["my_number"]
-            self.name = kwargs["name"]
-            self.created_at = datetime.fromisoformat(str(kwargs["created_at"]))
-            self.updated_at = datetime.fromisoformat(str(kwargs["updated_at"]))
+        DATE_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+        if kwargs:
+            for key, value in kwargs.items():
+                if key in ("updated_at", "created_at"):
+                    self.__dict__[key] = datetime.strptime(
+                        value, DATE_TIME_FORMAT)
+                elif key[0] == "id":
+                    self.__dict__[key] = str(value)
+                elif key != "__class__":
+                    self.__dict__[key] = value
         else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
             storage.new(self)
-        print(self.__dict__)
 
     def __str__(self):
         """
@@ -42,7 +45,7 @@ class BaseModel():
         Updates the public instance attribute
         updated_at with the current datetime
         """
-        self.updated_at = str(datetime.now())
+        self.updated_at = datetime.now()
         storage.save()
 
     def to_dict(self):
@@ -52,7 +55,6 @@ class BaseModel():
         """
         obj_dict = self.__dict__.copy()
         obj_dict['__class__'] = type(self).__name__
-        obj_dict['created_at'] = str(obj_dict['created_at'].isoformat())
-        obj_dict['updated_at'] = str(obj_dict['updated_at'].isoformat())
+        obj_dict['created_at'] = obj_dict['created_at'].isoformat()
+        obj_dict['updated_at'] = obj_dict['updated_at'].isoformat()
         return obj_dict
-
