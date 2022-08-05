@@ -1,23 +1,31 @@
-
+#!/usr/bin.python3
 """
 This module contains the program for the entry point of the command interpreter
 """
 
 
 import cmd
-from models.base_model import BaseModel 
+from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 from models import storage
-from datetime import datetime
 
 
 class HBNBCommand(cmd.Cmd):
+
     """
     This is the class that the command interpreter program
     operates on.
     """
 
     prompt = '(hbnb) '
-    class_present = ['BaseModel']
+    class_present = ['BaseModel', 'User', 'State', 'City',
+                     'Amenity', 'Place', 'Review']
+
     def do_quit(self, arg):
         """
         Quit command to exit the program
@@ -50,8 +58,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] not in HBNBCommand.class_present:
             print("** class doesn't exist **")
             return
-        if args[0] == 'BaseModel':
-            inst = BaseModel()
+        inst = eval(args[0])()
         inst.save()
         print(inst.id)
 
@@ -72,7 +79,7 @@ class HBNBCommand(cmd.Cmd):
         if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in HBNBCommand.class_present:
-            print(" ** class doesn't exist **")
+            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
             return
@@ -84,8 +91,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             key = args[0] + '.' + args[1]
             instances = storage.all().copy()
-            if args[0] == "BaseModel":
-                inst = BaseModel(**instances[key])
+            inst = eval(args[0])(**instances[key])
             print(inst)
 
     def do_destroy(self, arg):
@@ -98,7 +104,7 @@ class HBNBCommand(cmd.Cmd):
         if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in HBNBCommand.class_present:
-            print(" ** class doesn't exist **")
+            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         elif HBNBCommand.check_not_id(args[1]):
@@ -119,16 +125,16 @@ class HBNBCommand(cmd.Cmd):
         args = list(arg.split())
         if len(args) == 0:
             for a_class, info in instances.items():
-                inst = BaseModel(**info)
+                inst = eval(info['__class__'])(**info)
                 str_all.append(inst.__str__())
         else:
             if args[0] not in HBNBCommand.class_present:
-                print(" ** class doesn't exist **")
+                print("** class doesn't exist **")
                 return
             else:
                 for a_class, info in instances.items():
                     if info['__class__'] == args[0]:
-                        inst = BaseModel(**info)
+                        inst = eval(args[0])(**info)
                         str_all.append(inst.__str__())
         print(str_all)
 
@@ -143,7 +149,7 @@ class HBNBCommand(cmd.Cmd):
         if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in HBNBCommand.class_present:
-            print(" ** class doesn't exist **")
+            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         elif HBNBCommand.check_not_id(args[1]):
@@ -153,15 +159,60 @@ class HBNBCommand(cmd.Cmd):
         elif len(args) == 3:
             print("** value missing **")
         else:
-            if args[0] == "BaseModel":
-                key = args[0] + '.' + args[1]
-                value = args[3]
-                if value[0] == '"' and value[-1] == '"':
-                    value = value[1:-1]
-                if value.isdigit():
-                    value = int(value)
-                storage.all()[key][args[2]] = value
+            key = args[0] + '.' + args[1]
+            value = args[3]
+            if value[0] == '"' and value[-1] == '"':
+                value = value[1:-1]
+            if value.isdigit():
+                value = int(value)
+                # elif value.isfloat():
+                #    value = float(value)
+            storage.all()[key][args[2]] = value
             storage.save()
+
+    def do_count(self, arg):
+        """
+         counts and the number of instances
+         of a class.
+        """
+        instances = storage.all().copy()
+        num_inst = 0
+        args = list(arg.split())
+        if len(args) == 0:
+            print("** class name missing **")
+        else:
+            if args[0] not in HBNBCommand.class_present:
+                print("** class doesn't exist **")
+                return
+            else:
+                for a_class, info in instances.items():
+                    if info['__class__'] == args[0]:
+                        num_inst += 1
+        print(num_inst)
+
+    def default(self, arg):
+        """
+        This method deals with the following commands
+        <class name>.all(),
+        <class name>.count(),
+        <class name>.show(<id>),
+        <class name>.destroy(<id>),
+        <class name>.update(<id>, <attribute name>, <attribute value>),
+        <class name>.update(<id>, <dictionary representation>).
+        """
+        args = arg.split(".")
+        brace_idx = args[1].index('(')
+        cmd = args[1][:brace_idx]
+        arg = args[1].split("(")
+        arg = arg[1][:-1]
+        arg_line = arg.split(", ")
+        argv = ""
+        if len(arg_line) != 0:
+            for a in arg_line:
+                a = a[1:-1]
+                argv += a + " "
+        eval('self.do_' + cmd)(args[0] + " " + argv)
+
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
