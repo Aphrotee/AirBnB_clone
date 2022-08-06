@@ -47,6 +47,10 @@ class BaseModel():
         updated_at with the current datetime
         """
         self.updated_at = datetime.now()
+        print(self)
+        key = type(self).__name__ + '.' + self.id
+        storage.all()[key][updated_at] = self.updated_at
+        print(self.updated_at)
         storage.save()
 
     def to_dict(self):

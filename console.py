@@ -1,4 +1,4 @@
-#!/usr/bin.python3
+#!/usr/bin/python3
 """
 This module contains the program for the entry point of the command interpreter
 """
@@ -36,6 +36,7 @@ class HBNBCommand(cmd.Cmd):
         """
         Quit command to exit the program
         """
+        print("")
         return True
 
     def emptyline(self):
@@ -168,7 +169,9 @@ class HBNBCommand(cmd.Cmd):
                 # elif value.isfloat():
                 #    value = float(value)
             storage.all()[key][args[2]] = value
-            storage.save()
+            print(args[0])
+            print(eval(args[0]))
+            eval(args[0]).save(self)
 
     def do_count(self, arg):
         """
@@ -200,9 +203,13 @@ class HBNBCommand(cmd.Cmd):
         <class name>.update(<id>, <attribute name>, <attribute value>),
         <class name>.update(<id>, <dictionary representation>).
         """
+        if "." not in arg:
+            print("** command not found **" )
+            return
+
         args = arg.split(".")
         brace_idx = args[1].index('(')
-        cmd = args[1][:brace_idx]
+        cmds = args[1][:brace_idx]
         arg = args[1].split("(")
         arg = arg[1][:-1]
         arg_line = arg.split(", ")
@@ -211,7 +218,7 @@ class HBNBCommand(cmd.Cmd):
             for a in arg_line:
                 a = a[1:-1]
                 argv += a + " "
-        eval('self.do_' + cmd)(args[0] + " " + argv)
+        eval('self.do_' + cmds)(args[0] + " " + argv)
 
 
 if __name__ == '__main__':
