@@ -5,7 +5,7 @@ Module with test suite for class BaseModel
 """
 
 import unittest
-import sys
+from datetime import datetime
 import os
 import models
 from models.base_model import BaseModel
@@ -37,6 +37,37 @@ class TestBaseModel(unittest.TestCase):
         i = BaseModel()
         self.assertEqual(str(i),
                          "[BaseModel] ({}) {}".format(i.id, i.__dict__))
+
+    def test_created_at_is_format(self):
+        """
+        Test if the created_at attribute is datetime format
+        """
+        i = BaseModel()
+        self.assertTrue(type(i.created_at) is datetime)
+
+    def test_updated_at_is_format(self):
+        """
+        Test if the created_at attribute is datetime format
+        """
+        i = BaseModel()
+        self.assertTrue(type(i.updated_at) is datetime)
+
+    def test_initial_equality_of_times(self):
+        """
+        Test if 'created_at' and 'updated_at' are equal
+        """
+        i = BaseModel()
+        self.assertEqual(i.created_at, i.updated_at)
+
+    def test_if_save_method_updates_time_attr(self):
+        """
+        Test functionality of the save method
+        """
+        i = BaseModel()
+        sleep(0.05)
+        time_update = i.updated_at
+        i.save()
+        self.assertLess(i.time_update, i.updated_at)
 
 
 if __name__ == "__main__":
