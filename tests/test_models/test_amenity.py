@@ -8,6 +8,7 @@ import unittest
 from models.base_model import BaseModel
 from models.amenity import Amenity
 
+
 class TestAmenity(unittest.Test6Case):
     """
     TestCase for amenity
