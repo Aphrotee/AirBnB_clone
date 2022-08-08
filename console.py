@@ -169,11 +169,13 @@ class HBNBCommand(cmd.Cmd):
                 # elif value.isfloat():
                 #    value = float(value)
             storage.all()[key][args[2]] = value
-            print(args[0])
-            print(eval(args[0]))
-            eval(args[0]).save(self)
+            instance = storage.all()[key]
+            inst = eval(args[0])(**instance)
+            inst.save()
+            storage.all()[key]['updated_at'] = inst.updated_at.isoformat()
+            storage.save()
 
-    def do_count(self, arg):
+    def count(self, arg):
         """
          counts and the number of instances
          of a class.
@@ -203,7 +205,7 @@ class HBNBCommand(cmd.Cmd):
         <class name>.update(<id>, <attribute name>, <attribute value>),
         <class name>.update(<id>, <dictionary representation>).
         """
-        if "." not in arg:
+        if "." not in arg or "(" not in arg or len(arg) < 10:
             print("** command not found **" )
             return
 
@@ -216,9 +218,14 @@ class HBNBCommand(cmd.Cmd):
         argv = ""
         if len(arg_line) != 0:
             for a in arg_line:
-                a = a[1:-1]
+                if not a.isdigit():
+                    a = a[1:-1]
                 argv += a + " "
-        eval('self.do_' + cmds)(args[0] + " " + argv)
+        if cmds == "count":
+            self.count(args[0] + " " + argv)
+            return
+
+        eval("self.do_" + cmds)(args[0] + " " + argv)
 
 
 if __name__ == '__main__':
