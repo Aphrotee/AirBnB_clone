@@ -11,7 +11,7 @@
 }
 
 .places article {
-    min-width: 390px;
+    min-width: 350px;
     max-width: 390px;
     padding: 20px;
     margin: 20px;
@@ -167,4 +167,21 @@
 .reviews ul p {
     font-size: 12px;
     margin-top: 5px;
+}
+
+@media only screen and (max-width: 600px) {
+    h3 {
+        font-weight: 600;
+        margin-bottom: 0;
+        margin-top: 10px;
+        margin-left: 5px;
+        
+    }
+    
+    h4 {
+        font-weight: 400;
+        font-size: 12px;
+        margin-top: 0;
+        margin-left: 5px;
+    }
 }
